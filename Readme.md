@@ -10,3 +10,10 @@ Send text to AWS translate and return the translation
 ## Pilot Translate
 
 Translate text input from pilot global using AWS translate and return as property 'translated'
+
+## AWS list files
+
+List files in a named bucket - file name, size, owner, last modified date
+
+##Pilot list objects in S3 bucket
+AWS list files implemented in pilot - runs faster than out of the box AWS components from accelrys website
