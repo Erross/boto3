@@ -6,3 +6,7 @@ This will insert a single pilot record into a named dynamodb table - globals on 
 
 ## translate
 Send text to AWS translate and return the translation
+
+## Pilot Translate
+
+Translate text input from pilot global using AWS translate and return as property 'translated'
