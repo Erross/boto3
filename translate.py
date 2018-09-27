@@ -13,9 +13,3 @@ response = translate.translate_text(
 )
 
 print(response['TranslatedText'])
-#print(response.keys())
-
-#print(response['Items'])
-#x = 0
-#for i in response['Items']:
-#    print (i)
