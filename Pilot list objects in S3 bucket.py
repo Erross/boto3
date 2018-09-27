@@ -12,19 +12,29 @@ def onProcess(ctxt, dr):
     context = pilotpython.Context(ctxt)
     data = pilotpython.DataRecord(dr)
     props = data.getProperties()
-    session = boto3.Session(
-        aws_access_key_id='$(Access_Key)',
-        aws_secret_access_key='$(Secret_Key)'
-    )
-    Folder_Path = '$(Folder_Path)'
-    s3 = session.resource('s3')
-    your_bucket = s3.Bucket('$(Bucket Name)')
-    objlist = []
-    for x in your_bucket.objects.all():
-        if Folder_Path in x.key:
-            objlist.append(x.key)
-    props.defineStringArrayProperty("Object", objlist)
-    props.defineStringProperty("path", Folder_Path)
+
+    S3 = boto3.client('s3',
+                      aws_access_key_id='$(Access_Key)',
+                      aws_secret_access_key='$(Secret_Key)')
+
+    response = S3.list_objects_v2(Bucket='$(Bucket)', FetchOwner=True)
+
+    keyList = []
+    modList = []
+    sizeList = []
+    ownerList = []
+    for i in response['Contents']:
+        keyList.append(i['Key'])
+        modList.append(str(i['LastModified']))
+        sizeList.append(str(i['Size']))
+        ownerList.append(i['Owner']['DisplayName'])
+
+    print(keyList)
+
+    props.defineStringArrayProperty("Key", keyList)
+    props.defineStringArrayProperty("LastModified", modList)
+    props.defineStringArrayProperty("Size", sizeList)
+    props.defineStringArrayProperty("Owner", ownerList)
 
     context = pilotpython.Context(ctxt)
     return pilotpython.READY_FOR_INPUT_OR_NEW_DATA
