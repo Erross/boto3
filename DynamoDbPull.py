@@ -33,11 +33,6 @@ def onProcess(ctxt, dr):
     for i in data:
         x.append(json.dumps(i))
 
-    # print(response.keys())
-
-    # print(response['Items'])
-
-    # next bit defines outputs#
     props.defineStringArrayProperty("Done", x)
     # props.defineStringProperty("Argh", e)
     context = pilotpython.Context(ctxt)
