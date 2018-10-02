@@ -1,12 +1,50 @@
+import swigpython3 as pilotbase  # for bare-metal stuff
+import pilotpython  # nicer python classes
 import boto3
 import json
 
-dynamodb = boto3.client('dynamodb',
-                        aws_access_key_id='$(Access_Key)',
-                        aws_secret_access_key='$(Secret_Key)',
-                        region_name='$(Region_Name)'
-                        )
-x = []
-response = dynamodb.scan(TableName='$(Table)')
-for i in response['Items']:
-    x.append(json.dumps(i))
+
+def onInitialize(ctxt):
+    context = pilotpython.Context(ctxt)
+    return pilotpython.READY_FOR_INPUT_OR_NEW_DATA
+
+
+def onProcess(ctxt, dr):
+    # First Bit here is pilot required, probably#
+    context = pilotpython.Context(ctxt)
+    data = pilotpython.DataRecord(dr)
+    props = data.getProperties()
+    # Next Bit is my code#
+
+    dynamodb = boto3.resource('dynamodb',
+                              aws_access_key_id='$(Access_Key)',
+                              aws_secret_access_key='$(Secret_Key)',
+                              region_name='$(Region_Name)'
+
+                              )
+    table = dynamodb.Table('$(Table)')
+    response = table.scan()
+    data = response['Items']
+    while 'LastEvaluatedKey' in response:
+        response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+        data.extend(response['Items'])
+
+    x = []
+    for i in data:
+        x.append(json.dumps(i))
+
+    # print(response.keys())
+
+    # print(response['Items'])
+
+    # next bit defines outputs#
+    props.defineStringArrayProperty("Done", x)
+    # props.defineStringProperty("Argh", e)
+    context = pilotpython.Context(ctxt)
+    # next bit triggers next data input probably#
+    return pilotpython.READY_FOR_INPUT_OR_NEW_DATA
+
+
+def onFinalize(ctxt):
+    context = pilotpython.Context(ctxt)
+    None
